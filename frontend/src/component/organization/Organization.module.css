@@ -1,0 +1,64 @@
+/* Organization.module.css */
+.userProfileContainer {
+  margin-top: 20px;
+  min-height: 70vh; /* Set the container height to full viewport height */
+  overflow-y: scroll;
+}
+
+.scrollbar {
+  width: 10px;
+}
+
+.sidebar {
+  background-color: #f8f9fa;
+  width: 20%;
+  min-height: 80vh; /* Set the sidebar height to full viewport height */
+  overflow-y: scroll; /* Enable vertical scrolling if content exceeds sidebar height */
+  transition: transform 0.3s ease; /* Smooth transition for sidebar animation */
+  transform: translateX(-100%); /* Initially hide the sidebar off-screen */
+}
+
+.sidebarOpen {
+  transform: translateX(
+    0
+  ); /* Show the sidebar by translating it to 0 position */
+}
+
+.toggleSidebar {
+  display: none; /* Initially hide the toggle button */
+}
+
+@media (max-width: 768px) {
+  .toggleSidebar {
+    display: block; /* Show the toggle button on smaller screens */
+    position: relative;
+    z-index: 999;
+    color: black;
+    font-size: large;
+    border: none;
+    background-color: #f8f9fa;
+  }
+
+  .content {
+    padding-left: 20px; /* Add left padding to content */
+  }
+
+  .sidebar {
+    position: absolute;
+    width: 250px;
+    padding-top: 3rem;
+    z-index: 998;
+    transform: translateX(-100%); /* Initially hide the sidebar off-screen */
+  }
+
+  .sidebarOpen {
+    margin-top: 0px;
+    transform: translateX(
+      0
+    ); /* Show the sidebar by translating it to 0 position */
+  }
+
+  .contentOpen {
+    margin-left: 250px; /* Adjust content margin to accommodate the open sidebar */
+  }
+}

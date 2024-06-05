@@ -1,0 +1,10 @@
+.register-page {
+  background-color: #e0e0e0;
+}
+
+.register-container {
+  width: 400px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
