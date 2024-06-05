@@ -48,8 +48,8 @@ function PostEvent({ handleOptionClick }) {
         }
       );
       if (response.status === 201) {
-        // handleOptionClick("viewallevent");
-        console.log(response);
+        handleOptionClick("viewallevent");
+        // console.log(response);
       }
     } catch (error) {
       console.error("Error uploading event:", error);

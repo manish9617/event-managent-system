@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import *
-
+from .models import Event, EventRegistration
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -24,12 +23,10 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
-
-
 class EventSerializer(serializers.ModelSerializer):
     organizer = serializers.ReadOnlyField(source='organizer.username')
     total_attendees = serializers.SerializerMethodField()
-    event_image = serializers.SerializerMethodField()
+    event_image = serializers.ImageField()
 
     class Meta:
         model = Event
@@ -38,13 +35,6 @@ class EventSerializer(serializers.ModelSerializer):
     def get_total_attendees(self, obj):
         return EventRegistration.objects.filter(event=obj).count()
 
-    def get_event_image(self, obj):
-        request = self.context.get('request')
-        if obj.event_image:
-            return request.build_absolute_uri(obj.event_image.url)
-        return None
-    
-       
 class EventRegistrationSerializer(serializers.ModelSerializer):
     event = serializers.ReadOnlyField(source='event.name')
     attendee = serializers.ReadOnlyField(source='attendee.username')

@@ -1,46 +1,43 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-from rest_framework import status, views,permissions
+from rest_framework import status, views, permissions
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny,IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
-from .serializers import *
+from .serializers import UserSerializer, EventSerializer, EventRegistrationSerializer
+from .models import Event, EventRegistration
 
-class AuthViewSet(views.APIView):
+class AuthenticatedUserView(views.APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = User.objects.get(id=request.user.id)
+        user = request.user
         userdata = {
             "username": user.username,
             "first_name": user.first_name,
             "last_name": user.last_name,
             "email": user.email,
-            "organizer":user.is_superuser
-            # "role": user.role  # Include role in userdata
+            "organizer": user.is_superuser
         }
-        content = {'message': 'You are authenticated'}
-        return Response({'content': content, 'userdata': userdata}, status=status.HTTP_200_OK)
+        return Response({'message': 'You are authenticated', 'userdata': userdata}, status=status.HTTP_200_OK)
+
+
 
 
 class RegisterView(views.APIView):
     permission_classes = [AllowAny]
-    allowed_methods = ['POST']
 
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            token, created = Token.objects.get_or_create(user=user)
+            token, _ = Token.objects.get_or_create(user=user)
             return Response({'token': token.key}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-
-class LoginViewSet(views.APIView):
+class LoginView(views.APIView):
     permission_classes = [AllowAny]
-    allowed_methods = ['POST']
 
     def post(self, request):
         username = request.data.get('username')
@@ -49,7 +46,7 @@ class LoginViewSet(views.APIView):
         user = authenticate(username=username, password=password)
 
         if user is not None:
-            token, created = Token.objects.get_or_create(user=user)
+            token, _ = Token.objects.get_or_create(user=user)
             return Response({'token': token.key, 'user_id': user.id}, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -60,14 +57,8 @@ class LogoutView(views.APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        try:
-            token = request.auth
-            if token:
-                token.delete()
-                return Response({'message': 'Logged out successfully.'}, status=status.HTTP_200_OK)
-            return Response({'error': 'Token not provided.'}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        request.auth.delete()
+        return Response({'message': 'Logged out successfully.'}, status=status.HTTP_200_OK)
        
 class AllEventView(views.APIView):
     permission_classes = [AllowAny]
@@ -81,7 +72,7 @@ class EventCreateView(views.APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        serializer = EventSerializer(data=request.data)
+        serializer = EventSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save(organizer=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -115,6 +106,7 @@ class RegisterForEventView(views.APIView):
             ticket_qr=ticket_qr
         )
         return Response(EventRegistrationSerializer(registration).data, status=status.HTTP_201_CREATED)
+
 
 class UserRegisteredEventsView(views.APIView):
     permission_classes = [IsAuthenticated]
