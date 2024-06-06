@@ -1,24 +1,33 @@
 import React, { useContext } from "react";
-import { Container, Row, Col, Card, Button, Form } from "react-bootstrap";
+import { Container, Row, Col, Card, Button } from "react-bootstrap";
 import { AllFunction } from "./store/store";
 import { useParams } from "react-router-dom";
+import axios from "axios";
 const Payment = () => {
-  const { events } = useContext(AllFunction);
+  const { currentEvents } = useContext(AllFunction);
   const { eventId } = useParams();
-  const event = events.find((event) => event.id === parseInt(eventId));
+  const event = currentEvents.find((event) => event.id === parseInt(eventId));
 
   const handlePayment = () => {
-    // Handle payment logic here
-    console.log("Payment processed successfully.");
+    const data = {};
   };
+
   return (
-    <Container style={{ height: "56.1vh" }}>
-      <Row className="mt-4">
+    <Container>
+      <Row className="mt-5 mb-5">
         {/* Event Details */}
+        <Col md={1}></Col>
         <Col md={6}>
           <Card>
             <Card.Header as="h5">Event Details</Card.Header>
             <Card.Body>
+              <Card.Img
+                style={{ objectFit: "cover", maxHeight: "200px" }}
+                className="w-100 mb-3"
+                variant="top"
+                src={event.event_image}
+                alt={event.name}
+              />
               <Card.Title>{event.name}</Card.Title>
               <Card.Text>Date: {event.date}</Card.Text>
               <Card.Text>Location: {event.location}</Card.Text>
@@ -27,25 +36,15 @@ const Payment = () => {
           </Card>
         </Col>
         {/* Payment Details */}
-        <Col md={6}>
+        <Col md={4}>
           <Card>
             <Card.Header as="h5">Payment Details</Card.Header>
             <Card.Body>
-              <Form.Group controlId="ticketQuantity"></Form.Group>
-              <Form.Group controlId="cardNumber">
-                <Form.Label>Card Number</Form.Label>
-                <Form.Control type="text" placeholder="Enter card number" />
-              </Form.Group>
-              <Form.Group controlId="expiryDate">
-                <Form.Label>Expiry Date</Form.Label>
-                <Form.Control type="text" placeholder="MM/YY" />
-              </Form.Group>
-              <Form.Group controlId="cvv">
-                <Form.Label>CVV</Form.Label>
-                <Form.Control type="text" placeholder="CVV" />
-              </Form.Group>
+              <Card.Text className="mb-3">
+                <strong>Price:</strong> Rs.{event.price}
+              </Card.Text>
               <Button variant="primary w-100 mt-3" onClick={handlePayment}>
-                {100} Pay Now
+                Pay Now
               </Button>
             </Card.Body>
           </Card>

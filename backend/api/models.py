@@ -19,7 +19,7 @@ class EventRegistration(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     attendee = models.ForeignKey(User, on_delete=models.CASCADE)
     payment_status = models.CharField(max_length=20, choices=(('paid', 'Paid'), ('unpaid', 'Unpaid')))
-    ticket_qr = models.CharField(max_length=255)
+    ticket_qr_image = models.ImageField(upload_to='ticket_qr_codes/', null=True, blank=True)
     registered_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

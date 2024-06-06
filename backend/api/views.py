@@ -8,7 +8,6 @@ from rest_framework.authentication import TokenAuthentication
 from .serializers import UserSerializer, EventSerializer, EventRegistrationSerializer
 from .models import Event, EventRegistration
 from django.shortcuts import get_object_or_404
-
 class AuthenticatedUserView(views.APIView):
     permission_classes = [IsAuthenticated]
 
@@ -60,6 +59,7 @@ class LogoutView(views.APIView):
     def post(self, request):
         request.auth.delete()
         return Response({'message': 'Logged out successfully.'}, status=status.HTTP_200_OK)
+    
 class UpdateUserView(views.APIView):
     permission_classes = [IsAuthenticated]
 
@@ -129,8 +129,11 @@ class UserRegisteredEventsView(views.APIView):
 
     def get(self, request):
         registrations = EventRegistration.objects.filter(attendee=request.user)
-        serializer = EventRegistrationSerializer(registrations, many=True)
-        return Response(serializer.data,status=status.HTTP_200_OK)
+        event_data = EventSerializer([reg.event for reg in registrations], many=True, context={'request': request}).data
+        return Response({
+            'total_events': registrations.count(),
+            'events': event_data
+        }, status=status.HTTP_200_OK)
 
 class OrganizerEventsView(views.APIView):
     permission_classes = [IsAuthenticated]
@@ -154,3 +157,15 @@ class UpdateEventView(views.APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class EventRegistrationsView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, event_id):
+        event = get_object_or_404(Event, id=event_id)
+        registrations = EventRegistration.objects.filter(event=event)
+        user_data = UserSerializer([reg.attendee for reg in registrations], many=True).data
+        return Response({
+            'total_registrations': registrations.count(),
+            'registered_users': user_data
+        }, status=status.HTTP_200_OK)

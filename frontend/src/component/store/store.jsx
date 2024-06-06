@@ -1,18 +1,20 @@
 import { createContext, useState } from "react";
 import axios from "axios";
+
 export const AllFunction = createContext({
   handleAuth: () => {},
   handleLogout: () => {},
-  handelData: () => {},
+  handleData: () => {}, // Corrected function name here
 });
 
 const DataProvider = ({ children }) => {
   const [auth, setAuth] = useState(false);
   const [userType, setUserType] = useState("attendee");
   const [events, setEvent] = useState();
+  const [currentEvents, setCurrentEvent] = useState();
+  const [pastEvents, setPastEvent] = useState();
 
   const handleLogout = () => {
-    // console.log("hello");
     const token = localStorage.getItem("token");
     axios
       .post(
@@ -34,7 +36,6 @@ const DataProvider = ({ children }) => {
 
   const handleAuth = async () => {
     const token = localStorage.getItem("token");
-
     await axios
       .get("http://127.0.0.1:8000/api/auth/", {
         headers: {
@@ -44,69 +45,40 @@ const DataProvider = ({ children }) => {
       .then((res) => {
         if (res.status == 200) {
           setAuth(true);
-          // console.log(res.data.userdata);
           if (res.data.userdata.organizer) setUserType("organizer");
           else setUserType("attendee");
         }
       });
   };
 
-  const handelData = () => {
+  const handleData = () => {
+    // Corrected function name here
     axios.get("http://127.0.0.1:8000/api/allevent/").then((res) => {
-      // console.log(res.data.events);
-      const sortedEvents = res.data.events.sort((a, b) => a.date - b.date);
-      setEvent(sortedEvents);
+      setCurrentEvent(
+        res.data.events.filter((event) => new Date(event.date) >= new Date())
+      );
+      setPastEvent(
+        res.data.events.filter((event) => new Date(event.date) < new Date())
+      );
     });
   };
+
   return (
     <AllFunction.Provider
-      value={{ handleAuth, handleLogout, auth, userType, events, handelData }}
+      value={{
+        handleAuth,
+        handleLogout,
+        auth,
+        userType,
+        events,
+        handleData, // Corrected function name here
+        currentEvents,
+        pastEvents,
+      }}
     >
       {children}
     </AllFunction.Provider>
   );
 };
-export default DataProvider;
 
-// [
-//   {
-//     id: 1,
-//     name: "Event 1",
-//     imageUrl: "/tech.png",
-//     date: "June 15, 2024",
-//     location: "City A",
-//     description: "Description of Event 1",
-//   },
-//   {
-//     id: 2,
-//     name: "Event 2",
-//     imageUrl: "/tech.png",
-//     date: "July 10, 2024",
-//     location: "City B",
-//     description: "Description of Event 2",
-//   },
-//   {
-//     id: 3,
-//     name: "Event 3",
-//     imageUrl: "/tech.png",
-//     date: "July 10, 2024",
-//     location: "City B",
-//     description: "Description of Event 2",
-//   },
-//   {
-//     id: 4,
-//     name: "Event 4",
-//     imageUrl: "/tech.png",
-//     date: "July 10, 2024",
-//     location: "City B",
-//     description: "Description of Event 2",
-//   },
-//   {
-//     id: 5,
-//     name: "Event 5",
-//     imageUrl: "/tech.png",
-//     date: "July 10, 2024",
-//     location: "City B",
-//     description: "Description of Event 2",
-//   },
-// ];
+export default DataProvider;

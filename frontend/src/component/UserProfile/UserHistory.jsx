@@ -1,25 +1,31 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Table, Container } from "react-bootstrap";
-
+import axios from "axios";
 const UserHistory = () => {
-  const events = [
-    { id: 1, title: "React Workshop", date: "2024-05-01", price: "100" },
-    {
-      id: 2,
-      title: "JavaScript Conference",
-      date: "2024-06-15",
-      price: "150",
-    },
-    {
-      id: 3,
-      title: "Web Development Bootcamp",
-      date: "2024-07-20",
-      price: "200",
-    },
-  ];
+  const [events, setEvents] = useState();
+  const token = localStorage.getItem("token");
+  useEffect(() => {
+    if (token != null && !events) {
+      axios
+        .get("http://127.0.0.1:8000/api/events/registered/", {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        })
+        .then((res) => {
+          setEvents(res.data.events);
+        });
+    }
+  });
+  if (!events)
+    return (
+      <center>
+        <h2>Loading</h2>
+      </center>
+    );
 
   return (
-    <Container className="border border-dark p-3 rounded-4">
+    <Container className="p-4">
       <Table className="table table-hover p-2">
         <thead>
           <tr>

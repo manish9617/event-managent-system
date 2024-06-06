@@ -1,25 +1,77 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import EventCard from "./EventCard"; // Import EventCard component
 import { AllFunction } from "./store/store";
 
 function AllEvent() {
-  const { events, handleAuth, auth, handelData } = useContext(AllFunction);
+  const { handleAuth, auth, handleData, currentEvents, pastEvents } =
+    useContext(AllFunction);
   const token = localStorage.getItem("token");
+  const [dateFilter, setDateFilter] = useState("all");
+  const [priceFilter, setPriceFilter] = useState("all");
+  const [locationFilter, setLocationFilter] = useState("all");
+  const [filteredEvents, setFilteredEvents] = useState([]);
 
   useEffect(() => {
     if (token != null && !auth) {
       handleAuth();
     }
-  });
+  }, [token, auth, handleAuth]);
 
   useEffect(() => {
-    if (events == null) {
-      handelData();
+    if (!currentEvents) {
+      handleData();
+    } else {
+      applyFilters();
     }
-  });
+  }, [currentEvents, dateFilter, priceFilter, locationFilter]);
 
-  if (events == null) {
+  const applyFilters = () => {
+    let filtered = [...currentEvents];
+
+    if (dateFilter === "ascending") {
+      filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+    } else if (dateFilter === "descending") {
+      filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+    }
+
+    if (priceFilter === "lowtohigh") {
+      filtered.sort((a, b) => a.price - b.price);
+    } else if (priceFilter === "hightolow") {
+      filtered.sort((a, b) => b.price - a.price);
+    }
+
+    if (locationFilter !== "all") {
+      filtered = filtered.filter(
+        (event) => event.location.toLowerCase() === locationFilter.toLowerCase()
+      );
+    }
+
+    setFilteredEvents(filtered);
+  };
+
+  const handleDateFilterChange = (e) => {
+    const selectedValue = e.target.value;
+    setDateFilter(selectedValue);
+  };
+
+  const handlePriceFilterChange = (e) => {
+    const selectedValue = e.target.value;
+    setPriceFilter(selectedValue);
+  };
+
+  const handleLocationFilterChange = (e) => {
+    const selectedValue = e.target.value;
+    setLocationFilter(selectedValue);
+  };
+
+  const handleClearFilters = () => {
+    setDateFilter("all");
+    setPriceFilter("all");
+    setLocationFilter("all");
+  };
+
+  if (!currentEvents) {
     return (
       <center>
         <h2>Loading</h2>
@@ -27,19 +79,60 @@ function AllEvent() {
     );
   }
 
-  const currentEvents = events.filter(
-    (event) => new Date(event.date) >= new Date()
-  );
-  const pastEvents = events.filter(
-    (event) => new Date(event.date) < new Date()
-  );
-
   return (
-    <Container>
-      <h1 className="my-4">All Events</h1>
+    <Container className="mt-2">
+      <Row className="mb-4">
+        <Col sm={2}>Filter by:</Col>
+        <Col>
+          <select
+            className="form-select"
+            value={dateFilter}
+            onChange={handleDateFilterChange}
+          >
+            <option value="all">By Date</option>
+            <option value="ascending">Ascending Order</option>
+            <option value="descending">Descending Order</option>
+          </select>
+        </Col>
+        <Col>
+          <select
+            className="form-select"
+            value={priceFilter}
+            onChange={handlePriceFilterChange}
+          >
+            <option value="all">By Ticket Price</option>
+            <option value="lowtohigh">Low to High</option>
+            <option value="hightolow">High to Low</option>
+          </select>
+        </Col>
+        <Col>
+          <select
+            className="form-select"
+            value={locationFilter}
+            onChange={handleLocationFilterChange}
+          >
+            <option value="all">By Locations</option>
+            <option value="indore">Indore</option>
+            <option value="bhopal">Bhopal</option>
+            <option value="dewas">Dewas</option>
+            <option value="ujjain">Ujjain</option>
+            <option value="pune">Pune</option>
+            <option value="banglore">Banglore</option>
+            <option value="mumbai">Mumbai</option>
+          </select>
+        </Col>
+        <Col>
+          <button
+            className="btn btn-secondary rounded-3"
+            onClick={handleClearFilters}
+          >
+            Clear Filter
+          </button>
+        </Col>
+      </Row>
       <h2 className="my-4">Available Events</h2>
       <Row>
-        {currentEvents.map((event) => (
+        {filteredEvents.map((event) => (
           <Col key={event.id} sm={6} md={4} lg={3} className="mb-4">
             <EventCard event={event} />
           </Col>

@@ -26,6 +26,7 @@ function EventCard({ event }) {
           Date: {new Date(date).toISOString().split("T")[0]}
         </Card.Text>
         <Card.Text>Location: {location}</Card.Text>
+        <Card.Text>Ticket Price: {price}</Card.Text>
         <Card.Text>
           {showFullDescription ? description : truncatedDescription}
           {!showFullDescription && (
