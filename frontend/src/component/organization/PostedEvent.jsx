@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./AllPostedEvent.module.css";
+import axios from "axios";
 
 function PostedEvent({
   event,
@@ -7,7 +8,49 @@ function PostedEvent({
   isPopupOpen,
   closePopup,
   selectedEvent,
+  fetchEvents,
+  handleOptionClick,
 }) {
+  const [formData, setFormData] = useState({
+    name: event.name,
+    location: event.location,
+    date: event.date,
+    price: event.price,
+    description: event.description,
+  });
+
+  const handleUpdate = (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem("token");
+    axios
+      .patch(`http://127.0.0.1:8000/api/postevents/${event.id}/`, formData, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+      .then((res) => {
+        console.log("Event updated successfully:", res.data);
+        fetchEvents(); // Refresh the events list
+        closePopup(); // Close the popup after successful update
+      })
+      .catch((err) => {
+        console.error("Error updating event:", err.response.data);
+      });
+  };
+
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      date: event.date.split("T")[0], // Extract date in yyyy-MM-dd format
+    }));
+  }, [event]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
   return (
     <>
       <div key={event.id} className={`${styles.main} mt-4`}>
@@ -16,7 +59,13 @@ function PostedEvent({
           <h5 className="p-1">{event.location}</h5>
         </div>
         <div className={styles.verticalLine}></div>
-        <div className={styles.eventInfo}>
+        <div
+          className={styles.eventInfo}
+          style={{ cursor: "pointer" }}
+          onClick={() => {
+            handleOptionClick("allattendees", event.id);
+          }}
+        >
           <h5 className="p-1 font-bold">Total Attendees</h5>
           <h5 className="p-1">{event.total_attendees}</h5>
         </div>
@@ -41,52 +90,62 @@ function PostedEvent({
         </div>
       </div>
 
-      {isPopupOpen && selectedEvent.EventId === event.EventId && (
+      {isPopupOpen && selectedEvent?.id === event.id && (
         <div className={styles.popupWrapper}>
           <div className={styles.popup}>
             <button className={styles.closeBtn} onClick={closePopup}>
               X
             </button>
             <div className={styles.edit1}>
-              <form className={styles.jobForm}>
+              <form className={styles.jobForm} onSubmit={handleUpdate}>
                 <div className="form-group">
                   <label>Event Title:</label>
                   <input
                     type="text"
                     className="form-control"
-                    defaultValue={selectedEvent?.name}
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
                   />
                 </div>
                 <div className="form-group">
                   <label>Event Description:</label>
                   <input
                     type="text"
+                    name="description"
                     className="form-control"
-                    defaultValue={selectedEvent?.description}
+                    value={formData.description}
+                    onChange={handleChange}
                   />
                 </div>
                 <div className="form-group">
                   <label>City:</label>
                   <input
                     type="text"
+                    name="location"
                     className="form-control"
-                    defaultValue={selectedEvent?.location}
+                    value={formData.location}
+                    onChange={handleChange}
                   />
                 </div>
                 <div className="form-group">
                   <label>Event Date:</label>
                   <input
                     type="date"
+                    name="date"
                     className="form-control"
-                    defaultValue={selectedEvent?.date}
+                    value={formData.date}
+                    onChange={handleChange}
                   />
                 </div>
                 <div className="form-group">
                   <label>Price:</label>
                   <input
                     type="number"
+                    name="price"
                     className="form-control"
-                    defaultValue={selectedEvent?.price}
+                    value={formData.price}
+                    onChange={handleChange}
                   />
                 </div>
 

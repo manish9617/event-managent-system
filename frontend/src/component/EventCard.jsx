@@ -11,6 +11,9 @@ function EventCard({ event }) {
   const truncatedDescription =
     description.length > 100 ? `${description.slice(0, 100)}...` : description;
 
+  // Check if the event date is in the past
+  const isExpired = new Date(date) < new Date();
+
   return (
     <Card className={styles["event-card"]}>
       <div className={styles["image-container"]}>
@@ -31,9 +34,15 @@ function EventCard({ event }) {
             </Link>
           )}
         </Card.Text>
-        <Link to={`/events/payment/${event.id}`}>
-          <Button variant="primary">Register</Button>
-        </Link>
+        {isExpired ? (
+          <Button variant="secondary" disabled>
+            Ended
+          </Button>
+        ) : (
+          <Link to={`/events/payment/${event.id}`}>
+            <Button variant="primary">Register</Button>
+          </Link>
+        )}
       </Card.Body>
     </Card>
   );

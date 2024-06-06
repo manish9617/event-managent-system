@@ -1,6 +1,6 @@
 
 from django.urls import path
-from .views import RegisterView, LoginView, AuthenticatedUserView, LogoutView, AllEventView, EventCreateView, RegisterForEventView, UserRegisteredEventsView, OrganizerEventsView
+from .views import *
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
@@ -12,4 +12,6 @@ urlpatterns = [
     path('events/register/', RegisterForEventView.as_view(), name='register-for-event'),
     path('events/registered/', UserRegisteredEventsView.as_view(), name='user-registered-events'),
     path('events/organized/', OrganizerEventsView.as_view(), name='organizer-events'),
+    path('user/update/', UpdateUserView.as_view(), name='update-user'),  
+    path('postevents/<int:pk>/', UpdateEventView.as_view(), name='update-event'),
 ]

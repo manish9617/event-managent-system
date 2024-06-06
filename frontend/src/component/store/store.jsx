@@ -54,7 +54,7 @@ const DataProvider = ({ children }) => {
   const handelData = () => {
     axios.get("http://127.0.0.1:8000/api/allevent/").then((res) => {
       // console.log(res.data.events);
-      const sortedEvents = res.data.events.sort((a, b) => b.id - a.id);
+      const sortedEvents = res.data.events.sort((a, b) => a.date - b.date);
       setEvent(sortedEvents);
     });
   };

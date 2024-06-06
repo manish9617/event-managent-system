@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
+import { toast } from "react-toastify";
+import { AllFunction } from "../store/store";
 
-function PostEvent({ handleOptionClick }) {
+function PostEvent() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -13,6 +15,7 @@ function PostEvent({ handleOptionClick }) {
   });
   const [error, setError] = useState("");
 
+  const { handleAuth, auth } = useContext(AllFunction);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -22,6 +25,11 @@ function PostEvent({ handleOptionClick }) {
     setFormData({ ...formData, event_image: e.target.files[0] });
   };
 
+  useEffect(() => {
+    if (localStorage.getItem("token") != null && !auth) {
+      handleAuth();
+    }
+  });
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
@@ -48,7 +56,7 @@ function PostEvent({ handleOptionClick }) {
         }
       );
       if (response.status === 201) {
-        handleOptionClick("viewallevent");
+        toast.success("event creation successfully");
         // console.log(response);
       }
     } catch (error) {

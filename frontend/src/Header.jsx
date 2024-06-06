@@ -15,7 +15,9 @@ function Header() {
           <Nav className="me-auto">
             <Nav.Link href="/">Home</Nav.Link>
             <Nav.Link href="/events">Events</Nav.Link>
-            <Nav.Link href="/about">About</Nav.Link>
+            {auth && userType !== "attendee" && (
+              <Nav.Link href="/postevent">PostEvent</Nav.Link>
+            )}
           </Nav>
           <Nav>
             {auth ? (

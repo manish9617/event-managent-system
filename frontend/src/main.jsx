@@ -17,6 +17,7 @@ import Login from "./component/Login.jsx";
 import UserProfile from "./component/UserProfile/UserProfile.jsx";
 import OrganizationProfile from "./component/organization/OrganizationProfile.jsx";
 import Payment from "./component/Payment.jsx";
+import PostEvent from "./component/organization/PostEvent.jsx";
 const router = createBrowserRouter(
   createRoutesFromChildren(
     <Route path="/" element={<App />}>
@@ -32,6 +33,7 @@ const router = createBrowserRouter(
         path="/organizationProfile"
         element={<OrganizationProfile />}
       ></Route>
+      <Route path="/postevent" element={<PostEvent />}></Route>
     </Route>
   )
 );

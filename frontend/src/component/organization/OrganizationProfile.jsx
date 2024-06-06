@@ -5,12 +5,15 @@ import styles from "./Organization.module.css"; // Import the CSS module
 import PostEvent from "./PostEvent";
 import AllPostedEvent from "./AllPsotedEvent";
 import { AllFunction } from "../store/store";
+import TotalAttendees from "./TotalAttendees";
 
 const OrganizationProfile = () => {
   const [activeOption, setActiveOption] = useState("info");
   const [showSidebar, setShowSidebar] = useState(true); // Initially show sidebar on desktop
   const { auth, handleAuth } = useContext(AllFunction);
-  const handleOptionClick = (option) => {
+  const [eventId, setEventId] = useState();
+  const handleOptionClick = (option, id) => {
+    setEventId(id);
     setActiveOption(option);
     if (window.innerWidth <= 768) {
       setShowSidebar(false); // Close sidebar on option click in mobile view
@@ -35,23 +38,16 @@ const OrganizationProfile = () => {
             <ListGroup.Item
               action
               active={activeOption === "info"}
-              onClick={() => handleOptionClick("info")}
+              onClick={() => setActiveOption("info")}
             >
               Profile Info
             </ListGroup.Item>
             <ListGroup.Item
               action
               active={activeOption === "viewallevent"}
-              onClick={() => handleOptionClick("viewallevent")}
+              onClick={() => setActiveOption("viewallevent")}
             >
               View All Event
-            </ListGroup.Item>
-            <ListGroup.Item
-              action
-              active={activeOption === "postEvent"}
-              onClick={() => handleOptionClick("postEvent")}
-            >
-              Post Event
             </ListGroup.Item>
             {/* Add more options as needed */}
           </ListGroup>
@@ -71,10 +67,15 @@ const OrganizationProfile = () => {
             ☰
           </Button>
           {activeOption === "info" && <OrganizationProfileInfo />}
-          {activeOption === "postEvent" && (
-            <PostEvent handleOptionClick={handleOptionClick} />
+          {activeOption === "viewallevent" && (
+            <AllPostedEvent handleOptionClick={handleOptionClick} />
           )}
-          {activeOption === "viewallevent" && <AllPostedEvent />}
+          {activeOption === "allattendees" && (
+            <TotalAttendees
+              handleOptionClick={handleOptionClick}
+              eventId={eventId}
+            />
+          )}
           {/* Add more components based on options */}
         </Col>
       </Row>

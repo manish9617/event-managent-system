@@ -7,6 +7,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from .serializers import UserSerializer, EventSerializer, EventRegistrationSerializer
 from .models import Event, EventRegistration
+from django.shortcuts import get_object_or_404
 
 class AuthenticatedUserView(views.APIView):
     permission_classes = [IsAuthenticated]
@@ -59,7 +60,17 @@ class LogoutView(views.APIView):
     def post(self, request):
         request.auth.delete()
         return Response({'message': 'Logged out successfully.'}, status=status.HTTP_200_OK)
-       
+class UpdateUserView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        user = request.user
+        serializer = UserSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+    
 class AllEventView(views.APIView):
     permission_classes = [AllowAny]
 
@@ -67,6 +78,8 @@ class AllEventView(views.APIView):
         events = Event.objects.all()
         serializer = EventSerializer(events, many=True, context={'request': request})
         return Response({"events": serializer.data}, status=status.HTTP_200_OK)
+    
+    
     
 class EventCreateView(views.APIView):
     permission_classes = [IsAuthenticated]
@@ -77,6 +90,9 @@ class EventCreateView(views.APIView):
             serializer.save(organizer=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        
+
 
 class RegisterForEventView(views.APIView):
     permission_classes = [IsAuthenticated]
@@ -123,3 +139,18 @@ class OrganizerEventsView(views.APIView):
         events = Event.objects.filter(organizer=request.user)
         serializer = EventSerializer(events, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class UpdateEventView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk):
+        event = get_object_or_404(Event, pk=pk)
+        if event.organizer != request.user:
+            return Response({'detail': 'You do not have permission to edit this event.'}, status=status.HTTP_403_FORBIDDEN)
+        
+        serializer = EventSerializer(event, data=request.data, partial=True, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

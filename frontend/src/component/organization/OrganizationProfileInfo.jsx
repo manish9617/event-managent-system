@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import Edit from "./Edit.jsx";
 import { AllFunction } from "../store/store";
+import { toast } from "react-toastify";
 import axios from "axios";
 export default function OrganizationProfileInfo() {
   // Static data (replace with actual data if needed)
@@ -60,12 +61,27 @@ export default function OrganizationProfileInfo() {
   };
 
   const updateProfile = () => {
-    console.log("Updating profile:", {
-      username,
-      first_name,
-      last_name,
-      email,
-    });
+    const token = localStorage.getItem("token");
+    axios
+      .patch(
+        "http://127.0.0.1:8000/api/user/update/",
+        {
+          username: username,
+          first_name: first_name,
+          last_name: last_name,
+          email: email,
+        },
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        if (res.status == 200) {
+          toast.success("Update successfully");
+        }
+      });
   };
 
   const [isEdit, setEdit] = useState("");
