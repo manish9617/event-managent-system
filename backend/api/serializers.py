@@ -30,7 +30,7 @@ class EventSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Event
-        fields = ['id', 'name', 'description', 'date', 'location', 'organizer', 'created_at', 'updated_at', 'total_attendees', 'price', 'event_image']
+        fields = ['id', 'name', 'description', 'date', 'location', 'organizer', 'created_at', 'updated_at', 'total_attendees', 'price', 'event_image','event_category']
 
     def get_total_attendees(self, obj):
         return EventRegistration.objects.filter(event=obj).count()

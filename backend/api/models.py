@@ -11,6 +11,8 @@ class Event(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=200.00)
     event_image = models.ImageField(upload_to='event_images/', null=True, blank=True)
+    event_category=models.CharField(max_length=150,default="educational")
+
 
     def __str__(self):
         return self.name

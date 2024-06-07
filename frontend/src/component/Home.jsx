@@ -2,8 +2,11 @@ import React, { useContext, useEffect } from "react";
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
 import { AllFunction } from "./store/store";
 function Home() {
-  const { handleAuth, auth } = useContext(AllFunction);
-
+  const { handleAuth, auth, currentEvents, handleData } =
+    useContext(AllFunction);
+  useEffect(() => {
+    if (!currentEvents) handleData();
+  }, [currentEvents]);
   const categories = [
     {
       id: 1,
@@ -27,29 +30,6 @@ function Home() {
     },
   ];
 
-  const featuredEvents = [
-    {
-      id: 1,
-      title: "Music Festival",
-      description: "Join the biggest music festival of the year.",
-      date: "June 20, 2024",
-      image: "/Music Festival.jpg",
-    },
-    {
-      id: 2,
-      title: "Art Exhibition",
-      description: "Discover stunning art from renowned artists.",
-      date: "July 5, 2024",
-      image: "/art.png",
-    },
-    {
-      id: 3,
-      title: "Tech Conference",
-      description: "Stay updated with the latest in tech.",
-      date: "August 15, 2024",
-      image: "/tech.png",
-    },
-  ];
   const token = localStorage.getItem("token");
   useEffect(() => {
     if (token != null && !auth) {
@@ -103,23 +83,24 @@ function Home() {
         </Col>
       </Row>
       <Row>
-        {featuredEvents.map((event) => (
-          <Col key={event.id} xs={12} md={4} className="mb-4 ">
-            <Card>
-              <Card.Img variant="top" src={event.image} />
-              <Card.Body>
-                <Card.Title>{event.title}</Card.Title>
-                <Card.Text>{event.description}</Card.Text>
-                <Card.Text>
-                  <strong>Date:</strong> {event.date}
-                </Card.Text>
-                <Button variant="primary" href={`/events/${event.id}`}>
-                  Book Now
-                </Button>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
+        {currentEvents &&
+          currentEvents.slice(0, 3).map((event) => (
+            <Col key={event.id} xs={12} md={4} className="mb-4 ">
+              <Card>
+                <Card.Img variant="top" src={event.event_image} />
+                <Card.Body>
+                  <Card.Title>{event.name}</Card.Title>
+                  <Card.Text>{event.description}</Card.Text>
+                  <Card.Text>
+                    <strong>Date:</strong> {event.date}
+                  </Card.Text>
+                  <Button variant="primary" href={`/events/${event.id}`}>
+                    Book Now
+                  </Button>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))}
       </Row>
     </Container>
   );

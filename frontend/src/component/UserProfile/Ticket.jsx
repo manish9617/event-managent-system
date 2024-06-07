@@ -11,7 +11,7 @@ function Ticket({ handleOptionClick, current }) {
     const content = document.getElementById("ticket-content");
 
     // Add header at the top of the PDF
-    const headerText = "Event Ticket";
+    const headerText = `${current.event.name} Event Ticket`;
     const headerStyle = {
       fontSize: 18,
       fontWeight: "bold",
@@ -51,39 +51,77 @@ function Ticket({ handleOptionClick, current }) {
       <Row className="mt-5 mb-5" id="ticket-content">
         {/* Event Details */}
         <Col md={6}>
-          <Card>
-            <Card.Header as="h5">Event Details</Card.Header>
+          <Card
+            style={{
+              backgroundColor: "#f0f0f0",
+              boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+            }}
+          >
+            <Card.Header
+              as="h5"
+              style={{ backgroundColor: "#007bff", color: "#fff" }}
+            >
+              Event Details
+            </Card.Header>
             <Card.Body>
               <Card.Img
-                style={{ objectFit: "cover", maxHeight: "200px" }}
-                className="w-100 mb-3"
+                style={{
+                  objectFit: "cover",
+                  maxHeight: "200px",
+                  marginBottom: "10px",
+                }}
+                className="w-100"
                 variant="top"
                 src={current.event.event_image}
                 alt={current.event.name}
                 crossOrigin="anonymous"
               />
-              <Card.Title>{current.event.name}</Card.Title>
-              <Card.Text>Date: {current.event.date}</Card.Text>
-              <Card.Text>Location: {current.event.location}</Card.Text>
-              <Card.Text>Description: {current.event.description}</Card.Text>
+              <Card.Title style={{ color: "#333" }}>
+                {current.event.name}
+              </Card.Title>
+              <Card.Text style={{ color: "#555" }}>
+                Date: {current.event.date}
+              </Card.Text>
+              <Card.Text style={{ color: "#555" }}>
+                Location: {current.event.location}
+              </Card.Text>
+              <Card.Text style={{ color: "#555" }}>
+                Description: {current.event.description}
+              </Card.Text>
             </Card.Body>
           </Card>
         </Col>
         {/* Ticket Details */}
         <Col md={6}>
-          <Card>
-            <Card.Header as="h5">Ticket Details</Card.Header>
+          <Card
+            style={{
+              backgroundColor: "#e9e9e9",
+              boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+            }}
+          >
+            <Card.Header
+              as="h5"
+              style={{ backgroundColor: "#28a745", color: "#fff" }}
+            >
+              Ticket Details
+            </Card.Header>
             <Card.Body>
               <Card.Img
-                style={{ objectFit: "contain", maxHeight: "290px" }}
+                style={{
+                  objectFit: "contain",
+                  maxHeight: "290px",
+                  marginBottom: "10px",
+                }}
                 className="w-100"
                 variant="top"
                 src={current.registration.ticket_qr_image}
                 alt="ticket"
                 crossOrigin="anonymous"
               />
-              <Card.Text>Ticket Price: {current.event.price}</Card.Text>
-              <Card.Text>
+              <Card.Text style={{ color: "#555" }}>
+                Ticket Price: {current.event.price}
+              </Card.Text>
+              <Card.Text style={{ color: "#555" }}>
                 Payment Status: {current.registration.payment_status}
               </Card.Text>
             </Card.Body>
