@@ -4,9 +4,9 @@ import { Container, Card, Button } from "react-bootstrap";
 import { AllFunction } from "./store/store";
 
 const EventDetails = () => {
-  const { events } = useContext(AllFunction);
+  const { currentEvents } = useContext(AllFunction);
   const { eventId } = useParams();
-  const event = events.find((event) => event.id === parseInt(eventId));
+  const event = currentEvents.find((event) => event.id === parseInt(eventId));
 
   if (!event) {
     return <div>Event not found</div>;
@@ -33,7 +33,7 @@ const EventDetails = () => {
             variant="primary"
             style={{ position: "absolute", top: "60%", right: "10px" }} // Set position for the button
           >
-            Register
+            Book Now
           </Button>
         </Link>
         <Card.Body>

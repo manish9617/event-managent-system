@@ -5,6 +5,7 @@ export const AllFunction = createContext({
   handleAuth: () => {},
   handleLogout: () => {},
   handleData: () => {}, // Corrected function name here
+  handleHomeCategory: () => {},
 });
 
 const DataProvider = ({ children }) => {
@@ -12,7 +13,10 @@ const DataProvider = ({ children }) => {
   const [userType, setUserType] = useState("attendee");
   const [currentEvents, setCurrentEvent] = useState();
   const [pastEvents, setPastEvent] = useState();
-
+  const [homeCategory, setHomeCategory] = useState();
+  const handleHomeCategory = (category) => {
+    setHomeCategory(category);
+  };
   const handleLogout = () => {
     const token = localStorage.getItem("token");
     axios
@@ -72,6 +76,8 @@ const DataProvider = ({ children }) => {
         handleData, // Corrected function name here
         currentEvents,
         pastEvents,
+        handleHomeCategory,
+        homeCategory,
       }}
     >
       {children}

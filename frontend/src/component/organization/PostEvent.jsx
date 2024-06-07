@@ -12,10 +12,12 @@ function PostEvent() {
     location: "",
     price: "",
     event_image: null,
+    event_category: "", // added event_category field
   });
   const [error, setError] = useState("");
 
   const { handleAuth, auth } = useContext(AllFunction);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -29,7 +31,8 @@ function PostEvent() {
     if (localStorage.getItem("token") != null && !auth) {
       handleAuth();
     }
-  });
+  }, [auth, handleAuth]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
@@ -40,6 +43,7 @@ function PostEvent() {
     data.append("date", formData.date);
     data.append("location", formData.location);
     data.append("price", formData.price);
+    data.append("event_category", formData.event_category); // added event_category field
     if (formData.event_image) {
       data.append("event_image", formData.event_image);
     }
@@ -56,8 +60,17 @@ function PostEvent() {
         }
       );
       if (response.status === 201) {
-        toast.success("event creation successfully");
-        // console.log(response);
+        toast.success("Event created successfully");
+        // Reset form fields
+        setFormData({
+          name: "",
+          description: "",
+          date: "",
+          location: "",
+          price: "",
+          event_image: null,
+          event_category: "",
+        });
       }
     } catch (error) {
       console.error("Error uploading event:", error);
@@ -138,6 +151,25 @@ function PostEvent() {
             onChange={handleChange}
             required
           />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="event_category" className="form-label">
+            Event event_category
+          </label>
+          <select
+            className="form-control"
+            id="event_category"
+            name="event_category"
+            value={formData.event_category}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select Category</option>
+            <option value="Educational">Educational</option>
+            <option value="Cultural">Cultural Events</option>
+            <option value="Corporate">Corporate Events</option>
+            <option value="Entertainment">Entertainment Events</option>
+          </select>
         </div>
         <div className="mb-3">
           <label htmlFor="event_image" className="form-label">

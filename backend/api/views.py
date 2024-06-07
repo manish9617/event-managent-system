@@ -117,7 +117,7 @@ class RegisterForEventView(views.APIView):
         )
 
         # Generate the QR code including the payment status
-        qr_data = f'Registration for {user.username} to {event.name}\nPayment Status: {payment_status}'
+        qr_data = f'Registration for {user.username} to {event.name}\nPayment Status: {payment_status}\nEvent Date:{event.date}'
         qr_code = qrcode_make(qr_data)
         buffer = BytesIO()
         qr_code.save(buffer, format='PNG')

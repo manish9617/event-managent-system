@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import styles from "./AllPostedEvent.module.css";
 import axios from "axios";
-
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 function PostedEvent({
   event,
   onEdit,
@@ -17,6 +18,7 @@ function PostedEvent({
     date: event.date,
     price: event.price,
     description: event.description,
+    event_category: event.event_category,
   });
 
   const handleUpdate = (e) => {
@@ -30,7 +32,11 @@ function PostedEvent({
         },
       })
       .then((res) => {
-        console.log("Event updated successfully:", res.data);
+        if (res.status == 200) {
+          toast.success("Event updated successfully");
+        } else {
+          toast.error("Event not updated");
+        }
         fetchEvents(); // Refresh the events list
         closePopup(); // Close the popup after successful update
       })
@@ -148,7 +154,20 @@ function PostedEvent({
                     onChange={handleChange}
                   />
                 </div>
-
+                <div className="form-group">
+                  <label>Category:</label>
+                  <select
+                    name="event_category"
+                    className="form-control"
+                    value={formData.event_category}
+                    onChange={handleChange}
+                  >
+                    <option value="Educational">Educational Events</option>
+                    <option value="Corporate">Corporate Events</option>
+                    <option value="Entertainment">Entertainment Events</option>
+                    <option value="Cultural">Cultural Events</option>
+                  </select>
+                </div>
                 <button
                   type="submit"
                   className={`btn btn-primary ${styles.btnPrimary} mt-3`}

@@ -1,12 +1,16 @@
 import React, { useContext, useEffect } from "react";
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
 import { AllFunction } from "./store/store";
+import { Link } from "react-router-dom";
+
 function Home() {
-  const { handleAuth, auth, currentEvents, handleData } =
+  const { handleAuth, auth, currentEvents, handleData, handleHomeCategory } =
     useContext(AllFunction);
+
   useEffect(() => {
     if (!currentEvents) handleData();
   }, [currentEvents]);
+
   const categories = [
     {
       id: 1,
@@ -36,6 +40,7 @@ function Home() {
       handleAuth();
     }
   });
+
   return (
     <Container className="my-4">
       {/* Hero Section */}
@@ -60,18 +65,25 @@ function Home() {
       <Row className="mb-4">
         {categories.map((category) => (
           <Col key={category.id} xs={6} md={3} className="text-center mb-4">
-            <div
-              className="category-icon d-flex p-3 "
-              style={{
-                border: "2px solid black",
-                borderRadius: "5rem",
-                height: "6rem",
-                width: "15rem",
-              }}
+            <Link
+              to="/events"
+              style={{ textDecoration: "none", color: "black" }}
             >
-              <img src={category.icon} width="50%" className="rounded-5" />
-              <p>{category.name}</p>
-            </div>
+              <div
+                className="category-icon d-flex p-3 "
+                style={{
+                  border: "2px solid black",
+                  borderRadius: "5rem",
+                  height: "6rem",
+                  width: "15rem",
+                  cursor: "pointer",
+                }}
+                onClick={() => handleHomeCategory(category.name)}
+              >
+                <img src={category.icon} width="50%" className="rounded-5" />
+                <p>{category.name}</p>
+              </div>
+            </Link>
           </Col>
         ))}
       </Row>
@@ -90,13 +102,19 @@ function Home() {
                 <Card.Img variant="top" src={event.event_image} />
                 <Card.Body>
                   <Card.Title>{event.name}</Card.Title>
-                  <Card.Text>{event.description}</Card.Text>
+                  <Card.Text>
+                    {event.description.length > 100
+                      ? `${event.description.slice(0, 100)}... `
+                      : `${event.description}..`}
+
+                    <Link to={`/events/${event.id}`}>View More</Link>
+                  </Card.Text>
                   <Card.Text>
                     <strong>Date:</strong> {event.date}
                   </Card.Text>
-                  <Button variant="primary" href={`/events/${event.id}`}>
-                    Book Now
-                  </Button>
+                  <Link to={`/events/payment/${event.id}`}>
+                    <Button variant="primary">Book Now</Button>
+                  </Link>
                 </Card.Body>
               </Card>
             </Col>

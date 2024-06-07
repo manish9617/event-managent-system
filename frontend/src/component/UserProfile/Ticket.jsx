@@ -4,6 +4,8 @@ import { MdOutlineFileDownload } from "react-icons/md";
 import { IoIosArrowBack } from "react-icons/io";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Ticket({ handleOptionClick, current }) {
   const downloadPdf = async () => {
@@ -35,6 +37,7 @@ function Ticket({ handleOptionClick, current }) {
 
       doc.addImage(imgData, "PNG", 0, 30, pdfWidth, pdfHeight); // Adjust Y position for the image
       doc.save(`${current.event.name}-ticket.pdf`);
+      toast.success("Download successfully");
     });
   };
 

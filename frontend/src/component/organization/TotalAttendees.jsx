@@ -6,7 +6,8 @@ import { IoIosArrowBack } from "react-icons/io";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { AllFunction } from "../store/store";
-
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 function TotalAttendees({ handleOptionClick, eventId }) {
   const [attendee, setAttendee] = useState();
   const [loading, setLoading] = useState(true);
@@ -75,6 +76,7 @@ function TotalAttendees({ handleOptionClick, eventId }) {
       doc.save(
         `${event ? event.name.replace(/\s+/g, "-") : "event"}-attendees.pdf`
       );
+      toast.success("Download successfully");
     });
   };
 

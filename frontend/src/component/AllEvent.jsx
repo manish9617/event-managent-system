@@ -4,14 +4,20 @@ import EventCard from "./EventCard"; // Import EventCard component
 import { AllFunction } from "./store/store";
 
 function AllEvent() {
-  const { handleAuth, auth, handleData, currentEvents, pastEvents } =
-    useContext(AllFunction);
+  const {
+    handleAuth,
+    auth,
+    handleData,
+    currentEvents,
+    pastEvents,
+    homeCategory,
+  } = useContext(AllFunction);
   const token = localStorage.getItem("token");
   const [dateFilter, setDateFilter] = useState("all");
   const [priceFilter, setPriceFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
   const [filteredEvents, setFilteredEvents] = useState([]);
-
+  const [category, setcategory] = useState("all");
   useEffect(() => {
     if (token != null && !auth) {
       handleAuth();
@@ -24,11 +30,24 @@ function AllEvent() {
     } else {
       applyFilters();
     }
-  }, [currentEvents, dateFilter, priceFilter, locationFilter]);
+  }, [currentEvents, dateFilter, priceFilter, locationFilter, category]);
+
+  useEffect(() => {
+    if (homeCategory) {
+      if (homeCategory === "Corporate Events") {
+        setcategory("Corporate");
+      } else if (homeCategory === "Educational Events") {
+        setcategory("Educational");
+      } else if (homeCategory === "Entertainment Events") {
+        setcategory("Entertainment");
+      } else if (homeCategory === "Cultural Events") {
+        setcategory("Cultural");
+      }
+    }
+  }, [homeCategory]);
 
   const applyFilters = () => {
     let filtered = [...currentEvents];
-
     if (dateFilter === "ascending") {
       filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
     } else if (dateFilter === "descending") {
@@ -44,6 +63,11 @@ function AllEvent() {
     if (locationFilter !== "all") {
       filtered = filtered.filter(
         (event) => event.location.toLowerCase() === locationFilter.toLowerCase()
+      );
+    }
+    if (category !== "all") {
+      filtered = filtered.filter(
+        (event) => event.event_category.toLowerCase() === category.toLowerCase()
       );
     }
 
@@ -64,11 +88,17 @@ function AllEvent() {
     const selectedValue = e.target.value;
     setLocationFilter(selectedValue);
   };
+  const handleCategoryFilter = (e) => {
+    const selectedValue = e.target.value;
+    setcategory(selectedValue);
+  };
 
   const handleClearFilters = () => {
     setDateFilter("all");
     setPriceFilter("all");
     setLocationFilter("all");
+    setcategory("all");
+    // setFilteredEvents(currentEvents);
   };
 
   if (!currentEvents) {
@@ -119,6 +149,19 @@ function AllEvent() {
             <option value="pune">Pune</option>
             <option value="banglore">Banglore</option>
             <option value="mumbai">Mumbai</option>
+          </select>
+        </Col>
+        <Col>
+          <select
+            className="form-select"
+            value={category}
+            onChange={handleCategoryFilter}
+          >
+            <option value="all">By Category</option>
+            <option value="Educational">Educational Events</option>
+            <option value="Corporate">Corporate Events</option>
+            <option value="Entertainment">Entertainment Events</option>
+            <option value="Cultural">Cultural Events</option>
           </select>
         </Col>
         <Col>
