@@ -110,7 +110,7 @@ function AllEvent() {
   }
 
   return (
-    <Container className="mt-2">
+    <Container className="mt-3">
       <Row className="mb-4">
         <Col sm={2}>Filter by:</Col>
         <Col>
