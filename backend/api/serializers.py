@@ -38,7 +38,16 @@ class EventSerializer(serializers.ModelSerializer):
 class EventRegistrationSerializer(serializers.ModelSerializer):
     event = serializers.ReadOnlyField(source='event.name')
     attendee = serializers.ReadOnlyField(source='attendee.username')
+    ticket_qr_image = serializers.ImageField()
 
     class Meta:
         model = EventRegistration
-        fields = ['id', 'event', 'attendee', 'payment_status', 'ticket_qr', 'registered_at']
+        fields = ['id', 'event', 'attendee', 'payment_status', 'ticket_qr_image', 'registered_at']
+
+
+class EventWithRegistrationSerializer(serializers.ModelSerializer):
+    registration = EventRegistrationSerializer(source='eventregistration_set', many=True)
+
+    class Meta:
+        model = Event
+        fields = ['id', 'name', 'description', 'date', 'location', 'organizer', 'created_at', 'updated_at', 'total_attendees', 'price', 'event_image', 'registration']

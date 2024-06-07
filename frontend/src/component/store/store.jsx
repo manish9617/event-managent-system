@@ -10,7 +10,6 @@ export const AllFunction = createContext({
 const DataProvider = ({ children }) => {
   const [auth, setAuth] = useState(false);
   const [userType, setUserType] = useState("attendee");
-  const [events, setEvent] = useState();
   const [currentEvents, setCurrentEvent] = useState();
   const [pastEvents, setPastEvent] = useState();
 
@@ -70,7 +69,6 @@ const DataProvider = ({ children }) => {
         handleLogout,
         auth,
         userType,
-        events,
         handleData, // Corrected function name here
         currentEvents,
         pastEvents,

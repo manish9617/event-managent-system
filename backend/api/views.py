@@ -7,7 +7,11 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from .serializers import UserSerializer, EventSerializer, EventRegistrationSerializer
 from .models import Event, EventRegistration
+from qrcode import make as qrcode_make
+from io import BytesIO
+from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
+
 class AuthenticatedUserView(views.APIView):
     permission_classes = [IsAuthenticated]
 
@@ -21,9 +25,6 @@ class AuthenticatedUserView(views.APIView):
             "organizer": user.is_superuser
         }
         return Response({'message': 'You are authenticated', 'userdata': userdata}, status=status.HTTP_200_OK)
-
-
-
 
 class RegisterView(views.APIView):
     permission_classes = [AllowAny]
@@ -51,7 +52,6 @@ class LoginView(views.APIView):
         else:
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
-
 class LogoutView(views.APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -59,7 +59,7 @@ class LogoutView(views.APIView):
     def post(self, request):
         request.auth.delete()
         return Response({'message': 'Logged out successfully.'}, status=status.HTTP_200_OK)
-    
+
 class UpdateUserView(views.APIView):
     permission_classes = [IsAuthenticated]
 
@@ -69,8 +69,8 @@ class UpdateUserView(views.APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
-    
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class AllEventView(views.APIView):
     permission_classes = [AllowAny]
 
@@ -78,9 +78,7 @@ class AllEventView(views.APIView):
         events = Event.objects.all()
         serializer = EventSerializer(events, many=True, context={'request': request})
         return Response({"events": serializer.data}, status=status.HTTP_200_OK)
-    
-    
-    
+
 class EventCreateView(views.APIView):
     permission_classes = [IsAuthenticated]
 
@@ -91,16 +89,12 @@ class EventCreateView(views.APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        
-
-
 class RegisterForEventView(views.APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         event_id = request.data.get('event_id')
         payment_status = request.data.get('payment_status')
-        ticket_qr = request.data.get('ticket_qr')
 
         if payment_status != 'paid':
             return Response({"detail": "Payment is required to register for the event."}, status=status.HTTP_400_BAD_REQUEST)
@@ -115,21 +109,41 @@ class RegisterForEventView(views.APIView):
         if EventRegistration.objects.filter(event=event, attendee=user).exists():
             return Response({"detail": "You are already registered for this event."}, status=status.HTTP_400_BAD_REQUEST)
 
-        registration = EventRegistration.objects.create(
+        # Create the registration instance without saving to generate the QR code first
+        registration = EventRegistration(
             event=event,
             attendee=user,
-            payment_status=payment_status,
-            ticket_qr=ticket_qr
+            payment_status=payment_status
         )
-        return Response(EventRegistrationSerializer(registration).data, status=status.HTTP_201_CREATED)
 
+        # Generate the QR code including the payment status
+        qr_data = f'Registration for {user.username} to {event.name}\nPayment Status: {payment_status}'
+        qr_code = qrcode_make(qr_data)
+        buffer = BytesIO()
+        qr_code.save(buffer, format='PNG')
+        image_file = ContentFile(buffer.getvalue(), f'{user.username}_{event.name}_ticket.png')
+
+        # Save the QR code image to the registration instance
+        registration.ticket_qr_image.save(image_file.name, image_file)
+        registration.save()
+
+        return Response(EventRegistrationSerializer(registration).data, status=status.HTTP_201_CREATED)
 
 class UserRegisteredEventsView(views.APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         registrations = EventRegistration.objects.filter(attendee=request.user)
-        event_data = EventSerializer([reg.event for reg in registrations], many=True, context={'request': request}).data
+        event_data = []
+
+        for reg in registrations:
+            event_serializer = EventSerializer(reg.event, context={'request': request})
+            registration_serializer = EventRegistrationSerializer(reg, context={'request': request})
+            event_data.append({
+                'event': event_serializer.data,
+                'registration': registration_serializer.data
+            })
+
         return Response({
             'total_events': registrations.count(),
             'events': event_data
@@ -142,7 +156,6 @@ class OrganizerEventsView(views.APIView):
         events = Event.objects.filter(organizer=request.user)
         serializer = EventSerializer(events, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
 
 class UpdateEventView(views.APIView):
     permission_classes = [IsAuthenticated]
@@ -151,13 +164,13 @@ class UpdateEventView(views.APIView):
         event = get_object_or_404(Event, pk=pk)
         if event.organizer != request.user:
             return Response({'detail': 'You do not have permission to edit this event.'}, status=status.HTTP_403_FORBIDDEN)
-        
+
         serializer = EventSerializer(event, data=request.data, partial=True, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
 class EventRegistrationsView(views.APIView):
     permission_classes = [IsAuthenticated]
 

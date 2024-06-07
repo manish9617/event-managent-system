@@ -7,9 +7,21 @@ const Payment = () => {
   const { currentEvents } = useContext(AllFunction);
   const { eventId } = useParams();
   const event = currentEvents.find((event) => event.id === parseInt(eventId));
-
+  const token = localStorage.getItem("token");
   const handlePayment = () => {
-    const data = {};
+    axios
+      .post(
+        "http://127.0.0.1:8000/api/events/register/",
+        { event_id: eventId, payment_status: "paid" },
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        console.log(res);
+      });
   };
 
   return (

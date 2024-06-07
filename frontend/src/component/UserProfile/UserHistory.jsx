@@ -1,8 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Table, Container } from "react-bootstrap";
 import axios from "axios";
-const UserHistory = () => {
-  const [events, setEvents] = useState();
+const UserHistory = ({
+  handleEvent,
+  events,
+  handleOptionClick,
+  handleCurrent,
+}) => {
   const token = localStorage.getItem("token");
   useEffect(() => {
     if (token != null && !events) {
@@ -13,7 +17,8 @@ const UserHistory = () => {
           },
         })
         .then((res) => {
-          setEvents(res.data.events);
+          // console.log(res.data.events);
+          handleEvent(res.data.events);
         });
     }
   });
@@ -32,16 +37,28 @@ const UserHistory = () => {
             <th scope="col">#</th>
             <th scope="col">Event Title</th>
             <th scope="col">Date</th>
+            <th scope="col">Location</th>
             <th scope="col">Price</th>
+            <th scope="col">Action</th>
           </tr>
         </thead>
         <tbody>
-          {events.map((event, index) => (
-            <tr key={event.id}>
+          {events.map((temp, index) => (
+            <tr key={temp.event.id}>
               <th scope="row">{index + 1}</th>
-              <td>{event.title}</td>
-              <td>{event.date}</td>
-              <td>{event.price}</td>
+              <td>{temp.event.name}</td>
+              <td>{temp.event.date}</td>
+              <td>{temp.event.location}</td>
+              <td>{temp.event.price}</td>
+              <td
+                onClick={() => {
+                  handleCurrent(temp);
+                  handleOptionClick("ticket");
+                }}
+                style={{ cursor: "pointer" }}
+              >
+                View Ticket
+              </td>
             </tr>
           ))}
         </tbody>
