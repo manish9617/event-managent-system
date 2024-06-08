@@ -37,6 +37,7 @@ const Register = () => {
       .then((res) => {
         if (res.status === 201) {
           localStorage.setItem("token", res.data.token);
+
           location.href = "/";
         } else {
           alert(res.error);

@@ -1,30 +1,38 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Container, Form, Button } from "react-bootstrap";
 import "./Login.css"; // Import custom CSS for styling
 import axios from "axios";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
   // State to store form data
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-  });
+  // const [formData, setFormData] = useState({
+  //   username: "",
+  //   password: "",
+  // });
+  const usernameRef = useRef("");
+  const passwordRef = useRef("");
 
   // Handle form input changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
+  // const handleInputChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setFormData({
+  //     ...formData,
+  //     [name]: value,
+  //   });
+  // };
 
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
     // console.log("Form Data:", formData);
-
+    const formData = {
+      username: usernameRef.current.value,
+      password: passwordRef.current.value,
+    };
+    console.log(formData);
     axios
       .post("http://127.0.0.1:8000/api/login/", formData, {
         headers: {
@@ -32,16 +40,19 @@ const Login = () => {
         },
       })
       .then((res) => {
+        console.log(res);
         if (res.status == 200) {
           localStorage.setItem("token", res.data.token);
           location.href = "/";
+        } else if (res.status == 204) {
+          usernameRef.current.value = "";
+          passwordRef.current.value = "";
+          toast.error("Invalid credentials");
         }
       })
       .catch((error) => {
         console.error("Error:", error);
       });
-
-    // You can perform further actions here, like sending the data to a server
   };
 
   return (
@@ -58,18 +69,16 @@ const Login = () => {
               type="text"
               placeholder="Enter username"
               name="username"
-              value={formData.username}
-              onChange={handleInputChange}
+              ref={usernameRef}
             />
           </Form.Group>
           <Form.Group controlId="formPassword">
             <Form.Label>Password</Form.Label>
             <Form.Control
+              ref={passwordRef}
               type="password"
               placeholder="Password"
               name="password"
-              value={formData.password}
-              onChange={handleInputChange}
             />
           </Form.Group>
           <center>

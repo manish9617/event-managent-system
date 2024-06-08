@@ -50,7 +50,7 @@ class LoginView(views.APIView):
             token, _ = Token.objects.get_or_create(user=user)
             return Response({'token': token.key, 'user_id': user.id}, status=status.HTTP_200_OK)
         else:
-            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
 class LogoutView(views.APIView):
     authentication_classes = [TokenAuthentication]
@@ -95,19 +95,17 @@ class RegisterForEventView(views.APIView):
     def post(self, request):
         event_id = request.data.get('event_id')
         payment_status = request.data.get('payment_status')
-
         if payment_status != 'paid':
-            return Response({"detail": "Payment is required to register for the event."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "Payment is required to register for the event."}, status=status.HTTP_402_PAYMENT_REQUIRED)
 
         try:
             event = Event.objects.get(id=event_id)
         except Event.DoesNotExist:
-            return Response({"detail": "Event not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"detail": "Event not found."}, status=status.HTTP_204_NO_CONTENT)
 
         user = request.user
-
         if EventRegistration.objects.filter(event=event, attendee=user).exists():
-            return Response({"detail": "You are already registered for this event."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "You are already registered for this event."}, status=status.HTTP_208_ALREADY_REPORTED)
 
         # Create the registration instance without saving to generate the QR code first
         registration = EventRegistration(

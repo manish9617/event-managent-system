@@ -130,12 +130,14 @@ function Home() {
                     {event.description.length > 100
                       ? `${event.description.slice(0, 100)}... `
                       : `${event.description}..`}
-                    <Link to={`/events/${event.id}`}>View More</Link>
+                    <Link to={auth ? `/events/${event.id}` : "/login/"}>
+                      View More
+                    </Link>
                   </Card.Text>
                   <Card.Text>
                     <strong>Date:</strong> {event.date}
                   </Card.Text>
-                  <Link to={`/events/payment/${event.id}`}>
+                  <Link to={auth ? `/events/payment/${event.id}` : "/login/"}>
                     <Button variant="primary">Book Now</Button>
                   </Link>
                 </Card.Body>

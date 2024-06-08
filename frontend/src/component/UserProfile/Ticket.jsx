@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function Ticket({ handleOptionClick, current }) {
+  console.log(current);
   const downloadPdf = async () => {
     const doc = new jsPDF();
     const content = document.getElementById("ticket-content");
