@@ -1,12 +1,13 @@
 from django.contrib.auth.models import User
+from django.http import Http404
 from django.contrib.auth import authenticate
 from rest_framework import status, views, permissions
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
-from .serializers import UserSerializer, EventSerializer, EventRegistrationSerializer
-from .models import Event, EventRegistration
+from .serializers import *
+from .models import *
 from qrcode import make as qrcode_make
 from io import BytesIO
 from django.core.files.base import ContentFile
@@ -180,3 +181,22 @@ class EventRegistrationsView(views.APIView):
             'total_registrations': registrations.count(),
             'registered_users': user_data
         }, status=status.HTTP_200_OK)
+
+
+class EventFeedbackView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, event_id):
+        event = Event.objects.get(id=event_id)
+        request.data['event'] = event.id  # Ensure event ID is included in the data
+        serializer = FeedbackSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request, event_id):
+        event = Event.objects.get(id=event_id)
+        feedbacks = Feedback.objects.filter(event=event)
+        serializer = FeedbackSerializer(feedbacks, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

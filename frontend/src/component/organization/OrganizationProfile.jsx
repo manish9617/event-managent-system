@@ -6,6 +6,7 @@ import PostEvent from "./PostEvent";
 import AllPostedEvent from "./AllPsotedEvent";
 import { AllFunction } from "../store/store";
 import TotalAttendees from "./TotalAttendees";
+import AllFeedback from "./AllFeedback";
 
 const OrganizationProfile = () => {
   const [activeOption, setActiveOption] = useState("info");
@@ -72,6 +73,12 @@ const OrganizationProfile = () => {
           )}
           {activeOption === "allattendees" && (
             <TotalAttendees
+              handleOptionClick={handleOptionClick}
+              eventId={eventId}
+            />
+          )}
+          {activeOption === "feedback" && (
+            <AllFeedback
               handleOptionClick={handleOptionClick}
               eventId={eventId}
             />

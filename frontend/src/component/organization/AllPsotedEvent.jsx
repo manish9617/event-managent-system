@@ -9,7 +9,7 @@ function AllPostedEvent({ handleOptionClick }) {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const { auth } = useContext(AllFunction);
-
+  const token = localStorage.getItem("token");
   const openPopup = (event) => {
     setSelectedEvent(event);
     setIsPopupOpen(true);
@@ -21,7 +21,6 @@ function AllPostedEvent({ handleOptionClick }) {
   };
 
   const fetchEvents = async () => {
-    const token = localStorage.getItem("token");
     if (token && auth) {
       try {
         const res = await axios.get(
@@ -43,6 +42,14 @@ function AllPostedEvent({ handleOptionClick }) {
     }
   };
 
+  const fatchFeedback = async (eventId) => {
+    try {
+      const response = await axios.get(`/api/events/${eventId}/feedback/`);
+      setFeedbackList(response.data);
+    } catch (error) {
+      console.error("Error fetching feedback:", error);
+    }
+  };
   useEffect(() => {
     fetchEvents();
   }, [auth]);
@@ -79,6 +86,7 @@ function AllPostedEvent({ handleOptionClick }) {
             selectedEvent={selectedEvent}
             fetchEvents={fetchEvents}
             handleOptionClick={handleOptionClick}
+            isPast={false}
           />
         ))
       )}
@@ -97,6 +105,7 @@ function AllPostedEvent({ handleOptionClick }) {
               selectedEvent={selectedEvent}
               fetchEvents={fetchEvents}
               handleOptionClick={handleOptionClick}
+              isPast={true}
             />
           ))}
         </>

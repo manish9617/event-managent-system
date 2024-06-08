@@ -5,6 +5,7 @@ import EditUserProfile from "./EditUserProfile";
 import styles from "./UserProfile.module.css"; // Import the modular CSS
 import { AllFunction } from "../store/store";
 import Ticket from "./Ticket";
+import Feedback from "./Feedback";
 
 const UserProfile = () => {
   const [activeOption, setActiveOption] = useState("info");
@@ -95,6 +96,9 @@ const UserProfile = () => {
           )}
           {activeOption === "ticket" && (
             <Ticket handleOptionClick={handleOptionClick} current={current} />
+          )}
+          {activeOption === "feedback" && (
+            <Feedback handleOptionClick={handleOptionClick} current={current} />
           )}
           {/* Add more components based on options */}
         </Col>

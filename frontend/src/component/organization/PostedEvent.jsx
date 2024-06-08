@@ -11,6 +11,7 @@ function PostedEvent({
   selectedEvent,
   fetchEvents,
   handleOptionClick,
+  isPast,
 }) {
   const [formData, setFormData] = useState({
     name: event.name,
@@ -85,15 +86,34 @@ function PostedEvent({
           <h5 className="p-1 font-bold">Ticket price</h5>
           <h5 className="p-1">{event.price}</h5>
         </div>
-        <div className={styles.verticalLine}></div>
-        <div className={styles.eventInfo}>
-          <button
-            className="btn btn-secondary btn-lg mt-2 h-[65%] pt-1"
-            onClick={() => onEdit(event)}
-          >
-            Edit
-          </button>
-        </div>
+        {isPast && (
+          <>
+            <div className={styles.verticalLine}></div>
+            <div className={styles.eventInfo}>
+              <button
+                className="btn btn-secondary btn-lg mt-2 h-[65%] pt-1"
+                onClick={() => handleOptionClick("feedback", event.id)}
+              >
+                View Feedback
+              </button>
+              <h5></h5>
+            </div>
+          </>
+        )}
+
+        {!isPast && (
+          <>
+            <div className={styles.verticalLine}></div>
+            <div className={styles.eventInfo}>
+              <button
+                className="btn btn-secondary btn-lg mt-2 h-[65%] pt-1"
+                onClick={() => onEdit(event)}
+              >
+                Edit
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
       {isPopupOpen && selectedEvent?.id === event.id && (
