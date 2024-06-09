@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Event Update Notification</title>
+</head>
+
+<body>
+    <p>Dear {{ user.username }},</p>
+    <p>The event you registered for, <strong>{{ event.name }}</strong>, has been updated. Here are the new details:</p>
+    <ul>
+        <li><strong>Date:</strong> {{ event.date }}</li>
+        <li><strong>Location:</strong> {{ event.location }}</li>
+        <li><strong>Description:</strong> {{ event.description }}</li>
+        <li><strong>Price:</strong> ${{ event.price }}</li>
+        <li><strong>Category:</strong> {{ event.event_category }}</li>
+    </ul>
+    <p>Your updated ticket is attached to this email.</p>
+    <p>Thank you!</p>
+</body>
+
+</html>

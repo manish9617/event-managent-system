@@ -1,7 +1,9 @@
 from django.contrib.auth.models import User
-from django.http import Http404
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from django.contrib.auth import authenticate
-from rest_framework import status, views, permissions
+from rest_framework import status, views
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -126,7 +128,22 @@ class RegisterForEventView(views.APIView):
         registration.ticket_qr_image.save(image_file.name, image_file)
         registration.save()
 
+        # Send email notification with QR code
+        self.send_email_notification(registration,event, buffer)
+
         return Response(EventRegistrationSerializer(registration).data, status=status.HTTP_201_CREATED)
+
+    def send_email_notification(self, registration, event, buffer):
+        subject = f'Ticket for {event.name}'
+        html_message = render_to_string('email/event_registration_notification.html', {
+            'user': registration.attendee,
+            'event': event,
+            'heading': 'Ticket:-'
+        })
+        plain_message = strip_tags(html_message)
+        email = EmailMessage(subject, plain_message, 'rajput626591@gmail.com', [registration.attendee.email])
+        email.attach(f'{registration.attendee.username}_{event.name}_ticket.png', buffer.getvalue(), 'image/png')
+        email.send()
 
 class UserRegisteredEventsView(views.APIView):
     permission_classes = [IsAuthenticated]
@@ -177,8 +194,24 @@ class UpdateEventView(views.APIView):
                 
                 registration.ticket_qr_image.save(image_file.name, image_file)
                 registration.save()
+
+                # Send email notification with QR code
+                self.send_email_notification(registration, request.user, event, buffer)
+
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def send_email_notification(self, registration, user, event, buffer):
+        subject = f'Updated Event Details for {event.name}'
+        html_message = render_to_string('email/event_update_notification.html', {
+            'user': registration.attendee,
+            'event': event,
+            'heading': 'Ticket:-'
+        })
+        plain_message = strip_tags(html_message)
+        email = EmailMessage(subject, plain_message, user.email, [registration.attendee.email])
+        email.attach(f'{registration.attendee.username}_{event.name}_ticket.png', buffer.getvalue(), 'image/png')
+        email.send()
 
 class EventRegistrationsView(views.APIView):
     permission_classes = [IsAuthenticated]
