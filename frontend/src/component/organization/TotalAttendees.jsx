@@ -113,7 +113,7 @@ function TotalAttendees({ handleOptionClick, eventId }) {
           <IoIosArrowBack size={25} /> Back
         </Button>
         <Button className="btn-secondary" onClick={downloadPdf}>
-          <MdOutlineFileDownload size={25} /> Download Ticket
+          <MdOutlineFileDownload size={25} /> Download list of attendees
         </Button>
       </div>
       <div id="table-content" className="table-content">

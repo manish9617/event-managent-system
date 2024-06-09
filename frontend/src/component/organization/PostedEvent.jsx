@@ -3,6 +3,7 @@ import styles from "./AllPostedEvent.module.css";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Spinner from "react-bootstrap/Spinner";
 function PostedEvent({
   event,
   onEdit,
@@ -21,8 +22,9 @@ function PostedEvent({
     description: event.description,
     event_category: event.event_category,
   });
-
+  const [process, setProcess] = useState(false);
   const handleUpdate = (e) => {
+    setProcess(true);
     e.preventDefault();
     const token = localStorage.getItem("token");
     axios
@@ -35,10 +37,12 @@ function PostedEvent({
       .then((res) => {
         if (res.status == 200) {
           toast.success("Event updated successfully");
+          fetchEvents(); // Refresh the events list
         } else {
           toast.error("Event not updated");
         }
-        fetchEvents(); // Refresh the events list
+        setProcess(false);
+
         closePopup(); // Close the popup after successful update
       })
       .catch((err) => {
@@ -192,7 +196,7 @@ function PostedEvent({
                   type="submit"
                   className={`btn btn-primary ${styles.btnPrimary} mt-3`}
                 >
-                  Submit
+                  {process ? <Spinner animation="border" /> : "Submit"}
                 </button>
               </form>
             </div>

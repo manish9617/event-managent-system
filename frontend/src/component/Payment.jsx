@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
 import { MdOutlineFileDownload } from "react-icons/md";
-import { IoIosArrowBack } from "react-icons/io";
 import { AllFunction } from "./store/store";
 import { useParams } from "react-router-dom";
 import axios from "axios";
@@ -9,6 +8,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import Spinner from "react-bootstrap/Spinner";
 
 const Payment = () => {
   const { currentEvents } = useContext(AllFunction);
@@ -17,7 +17,9 @@ const Payment = () => {
   const token = localStorage.getItem("token");
   const [ticket, setTicket] = useState();
   const [showTicket, setShowTicket] = useState(false);
+  const [process, setProcess] = useState(false);
   const handlePayment = () => {
+    setProcess(true);
     axios
       .post(
         "http://127.0.0.1:8000/api/events/register/",
@@ -29,7 +31,8 @@ const Payment = () => {
         }
       )
       .then((res) => {
-        console.log(res);
+        // console.log(res);
+        setProcess(false);
         if (res.status == 201) {
           toast.success("Booked Successfully");
           setTicket(res.data);
@@ -43,6 +46,7 @@ const Payment = () => {
         }
       })
       .catch((err) => {
+        setProcess(false);
         console.log(err);
       });
   };
@@ -111,7 +115,7 @@ const Payment = () => {
                   <strong>Price:</strong> Rs.{event.price}
                 </Card.Text>
                 <Button variant="primary w-100 mt-3" onClick={handlePayment}>
-                  Pay Now
+                  {process ? <Spinner animation="border" /> : "Pay Now"}
                 </Button>
               </Card.Body>
             </Card>

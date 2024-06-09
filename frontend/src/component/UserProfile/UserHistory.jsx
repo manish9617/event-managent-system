@@ -55,6 +55,11 @@ const UserHistory = ({
 
   return (
     <Container className="p-4">
+      {currentEvents.length === 0 && (
+        <center>
+          <h5>Nothing in History</h5>
+        </center>
+      )}
       {currentEvents.length > 0 && (
         <>
           <h2 className="text-center">Current Events (Not Completed)</h2>
