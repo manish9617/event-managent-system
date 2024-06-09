@@ -167,6 +167,16 @@ class UpdateEventView(views.APIView):
         serializer = EventSerializer(event, data=request.data, partial=True, context={'request': request})
         if serializer.is_valid():
             serializer.save()
+            registrations = EventRegistration.objects.filter(event=event)
+            for registration in registrations:
+                qr_data = f'Registration for {registration.attendee.username} to {event.name}\nPayment Status: {registration.payment_status}\nEvent Date:{event.date}'
+                qr_code = qrcode_make(qr_data)
+                buffer = BytesIO()
+                qr_code.save(buffer, format='PNG')
+                image_file = ContentFile(buffer.getvalue(), f'{registration.attendee.username}_{event.name}_ticket.png')
+                
+                registration.ticket_qr_image.save(image_file.name, image_file)
+                registration.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
