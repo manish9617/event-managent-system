@@ -1,10 +1,12 @@
+// OrganizationProfileInfo.jsx
+
 import React, { useState, useEffect, useContext } from "react";
 import Edit from "./Edit.jsx";
 import { AllFunction } from "../store/store";
 import { toast } from "react-toastify";
 import axios from "axios";
+
 export default function OrganizationProfileInfo() {
-  // Static data (replace with actual data if needed)
   const { auth } = useContext(AllFunction);
   const [userData, setUserData] = useState({
     username: "",
@@ -24,7 +26,6 @@ export default function OrganizationProfileInfo() {
             },
           });
           if (response.status === 200) {
-            // console.log(response.data.userdata);
             setUserData(response.data.userdata);
           }
         } catch (error) {
@@ -36,6 +37,11 @@ export default function OrganizationProfileInfo() {
     fetchData();
   }, [auth, userData.username]);
 
+  const [username, setUsername] = useState("");
+  const [first_name, setFirstName] = useState("");
+  const [last_name, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+
   useEffect(() => {
     setUsername(userData.username);
     setFirstName(userData.first_name);
@@ -43,15 +49,11 @@ export default function OrganizationProfileInfo() {
     setEmail(userData.email);
   }, [userData]);
 
-  const [username, setUsername] = useState("");
-  const [first_name, setFirstName] = useState("");
-  const [last_name, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-
   const editDetails = (type, value) => {
     if (type === "first_name") {
       setFirstName(value);
-    } else if (type === "Email") {
+    } else if (type === "email") {
+      // Corrected "Email" to "email"
       setEmail(value);
     } else if (type === "last_name") {
       setLastName(value);
@@ -78,13 +80,15 @@ export default function OrganizationProfileInfo() {
         }
       )
       .then((res) => {
-        if (res.status == 200) {
+        if (res.status === 200) {
+          // Changed == to === for strict equality
+          console.log(res);
           toast.success("Update successfully");
         }
       });
   };
 
-  const [isEdit, setEdit] = useState("");
+  const [isEdit, setEdit] = useState(""); // Changed initial state to null or ""
   const handleEdit = (type) => {
     setEdit(type);
   };

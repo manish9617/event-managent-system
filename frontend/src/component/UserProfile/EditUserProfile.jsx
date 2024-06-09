@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import Edit from "./Edit";
 import axios from "axios";
 import { AllFunction } from "../store/store";
-
+import { toast } from "react-toastify";
 export default function EditUserProfile() {
   const { auth } = useContext(AllFunction);
   const [userData, setUserData] = useState({
@@ -35,17 +35,17 @@ export default function EditUserProfile() {
     fetchData();
   }, [auth, userData.username]);
 
+  const [username, setUsername] = useState("");
+  const [first_name, setFirstName] = useState("");
+  const [last_name, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+
   useEffect(() => {
     setUsername(userData.username);
     setFirstName(userData.first_name);
     setLastName(userData.last_name);
     setEmail(userData.email);
   }, [userData]);
-
-  const [username, setUsername] = useState("");
-  const [first_name, setFirstName] = useState("");
-  const [last_name, setLastName] = useState("");
-  const [email, setEmail] = useState("");
 
   const editDetails = (type, value) => {
     if (type === "first_name") {
@@ -60,12 +60,27 @@ export default function EditUserProfile() {
   };
 
   const updateProfile = () => {
-    console.log("Updating profile:", {
-      username,
-      first_name,
-      last_name,
-      email,
-    });
+    const token = localStorage.getItem("token");
+    axios
+      .patch(
+        "http://127.0.0.1:8000/api/user/update/",
+        {
+          username: username,
+          first_name: first_name,
+          last_name: last_name,
+          email: email,
+        },
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        if (res.status == 200) {
+          toast.success("Update successfully");
+        }
+      });
   };
 
   const [isEdit, setEdit] = useState("");
